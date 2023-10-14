@@ -1,15 +1,37 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const dotenv = require('dotenv');
+dotenv.config();
+const { rateLimit } = require('express-rate-limit')
 
 const getGameData = require('./getGameData');
 
-const port = 8001;
+const port = process.env.PORT;
+
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 100,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false
+});
+
+const allowedOrigns = [
+  'https://lyricsquiz.emilmoham.io',
+  'http://localhost:3000'
+]
 
 const app = express();
-
 app.use(helmet());
-app.use(cors());
+app.use(limiter);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (allowedOrigns.includes(origin))
+      callback(null, true);
+    else
+      callback(new Error('Not allowed by CORS'));
+  }
+}));
 
 app.get('/getGameData/:title', async function (req, res, next) {
     const title = req.params.title;
