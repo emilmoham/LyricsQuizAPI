@@ -33,9 +33,9 @@ const extractLyrics = (fullHTML) => {
     return lyrics;
 }
 
-const getGameData = async (resource) => {
+const getGameData = async (resource, proxyKey) => {
     let gameData = {}            
-    gameData.link = `https://genius.com/${resource}`;
+    gameData.link = `https://proxy.scrapeops.io/v1/?api_key=${proxyKey}&url=https://genius.com/${resource}`;
     gameData.title = 'Error Dowloading Lyrics Data';
     gameData.lyrics = '';
 

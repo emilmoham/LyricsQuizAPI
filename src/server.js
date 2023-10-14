@@ -41,7 +41,7 @@ app.get('/', async function(req, res) {
 app.get('/getGameData/:title', async function (req, res, next) {
     const title = req.params.title;
 
-    const gameData = await getGameData(title);
+    const gameData = await getGameData(title, process.env.PROXY_API_KEY);
 
     res.json(gameData);
   })
