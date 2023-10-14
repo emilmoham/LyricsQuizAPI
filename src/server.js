@@ -7,7 +7,7 @@ const { rateLimit } = require('express-rate-limit')
 
 const getGameData = require('./getGameData');
 
-const port = process.env.PORT;
+const port = process.env.PORT ?? 8011;
 
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
