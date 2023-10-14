@@ -26,12 +26,17 @@ app.use(helmet());
 app.use(limiter);
 app.use(cors({
   origin: (origin, callback) => {
-    if (allowedOrigns.includes(origin))
+    console.log(origin);
+    if (allowedOrigns.includes(origin) || origin === undefined)
       callback(null, true);
     else
       callback(new Error('Not allowed by CORS'));
   }
 }));
+
+app.get('/', async function(req, res) {
+  res.json('v1')
+});
 
 app.get('/getGameData/:title', async function (req, res, next) {
     const title = req.params.title;
