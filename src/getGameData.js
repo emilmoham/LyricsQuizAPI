@@ -34,12 +34,19 @@ const extractLyrics = (fullHTML) => {
 }
 
 const getGameData = async (resource, proxyKey) => {
-    let gameData = {}            
-    gameData.link = `https://proxy.scrapeops.io/v1/?api_key=${proxyKey}&url=https://genius.com/${resource}`;
+    let gameData = {}
+    let scrapelink;
+    if (proxyKey) {
+        scrapelink = `https://proxy.scrapeops.io/v1/?api_key=${proxyKey}&url=https://genius.com/${resource}`;
+    } else {
+        scrapelink = `https://genius.com/${resource}`;
+    }
+
+    gameData.link = `https://genius.com/${resource}`;
     gameData.title = 'Error Dowloading Lyrics Data';
     gameData.lyrics = '';
 
-    const res = await axios.get(gameData.link).then((result) => {
+    const res = await axios.get(scrapelink).then((result) => {
         try {
             const fullHTML = result.data;
             gameData.title = extractTitle(fullHTML)
