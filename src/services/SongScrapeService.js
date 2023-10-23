@@ -1,12 +1,12 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-const extractTitle = (fullHTML) => {
+function extractTitle(fullHTML) {
     const $ = cheerio.load(fullHTML);
     return $('title').text().split('|')[0].trim();
 }
 
-const extractLyrics = (fullHTML) => {
+function extractLyrics(fullHTML) {
     const $ = cheerio.load(fullHTML);
 
     let lyrics = $('div.lyrics').text()
@@ -33,14 +33,18 @@ const extractLyrics = (fullHTML) => {
     return lyrics;
 }
 
-const getGameData = async (resource, proxyKey) => {
-    let gameData = {}
+async function getSongFromWebpage(title) {
     let scrapelink;
+
+    let proxyKey = process.env.PROXY_API_KEY;
     if (proxyKey) {
         scrapelink = `https://proxy.scrapeops.io/v1/?api_key=${proxyKey}&url=https://genius.com/${resource}`;
     } else {
         scrapelink = `https://genius.com/${resource}`;
     }
+
+    if (process.env.DEBUG)
+        console.log(scrapelink);
 
     gameData.link = `https://genius.com/${resource}`;
     gameData.title = 'Error Dowloading Lyrics Data';
@@ -57,8 +61,10 @@ const getGameData = async (resource, proxyKey) => {
     }, (reason) => {
         console.error(reason.message);
     });
-
-    return gameData;
 }
 
-module.exports =  getGameData;
+module.exports = {
+    extractTitle,
+    extractLyrics,
+    getSongFromWebpage
+}

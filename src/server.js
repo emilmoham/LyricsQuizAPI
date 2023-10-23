@@ -5,8 +5,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 const { rateLimit } = require('express-rate-limit')
 
-const getGameData = require('./getGameData');
-
 const port = process.env.PORT ?? 8011;
 
 const limiter = rateLimit({
@@ -33,18 +31,16 @@ app.use(cors({
   }
 }));
 
+
+// Import routes
+const songRoute = require('./routes/GameData');
+
+app.use('/GameData', songRoute);
+
 app.get('/', async function(req, res) {
   res.json('v1')
 });
 
-app.get('/getGameData/:title', async function (req, res, next) {
-    const title = req.params.title;
-
-    const gameData = await getGameData(title, process.env.PROXY_API_KEY);
-
-    res.json(gameData);
-  })
-
 app.listen(port, function () {
     console.log(`CORS-enabled web server listening on port ${port}`)
-  });
+});
