@@ -1,3 +1,4 @@
+const path = require('path');
 const fs = require('fs');
 
 const {
@@ -6,7 +7,7 @@ const {
 } = require('../SongScrapeService');
 
 test('extractTitle', () => {
-    fs.readFile('./src/services/__tests__/SamplePage.html', 'utf8', (err, data) => {
+    fs.readFile(path.resolve(__dirname, './SamplePage.html'), 'utf8', (err, data) => {
         expect(err).toBe(null); 
         expect(data).not.toBe(null);
         let title = extractTitle(data);
@@ -15,7 +16,7 @@ test('extractTitle', () => {
 });
 
 test('extractLyrics', () => {
-    fs.readFile('./src/services/__tests__/SamplePage.html', 'utf8', (err, data) => {
+    fs.readFile(path.resolve(__dirname, './SamplePage.html'), 'utf8', (err, data) => {
         expect(err).toBe(null); 
         expect(data).not.toBe(null);
         let lyrics = extractLyrics(data);
