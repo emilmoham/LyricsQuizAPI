@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const dotenv = require('dotenv');
-dotenv.config();
 const { rateLimit } = require('express-rate-limit')
 
 const port = process.env.PORT ?? 8011;

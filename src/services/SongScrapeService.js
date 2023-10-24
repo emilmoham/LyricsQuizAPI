@@ -50,17 +50,20 @@ async function getSongFromWebpage(title) {
     gameData.title = 'Error Dowloading Lyrics Data';
     gameData.lyrics = '';
 
-    const res = await axios.get(scrapelink).then((result) => {
+    await axios.get(scrapelink).then((result) => {
         try {
             const fullHTML = result.data;
-            gameData.title = extractTitle(fullHTML)
+            gameData.title = extractTitle(fullHTML);
             gameData.lyrics = extractLyrics(fullHTML);
+            
         } catch (e) {
             console.log(e);
         }
     }, (reason) => {
         console.error(reason.message);
     });
+
+    return gameData;
 }
 
 module.exports = {

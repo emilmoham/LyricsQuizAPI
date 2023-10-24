@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/server.js"
+    "start": "nodemon src/server.js",
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +19,8 @@
     "helmet": "^7.0.0",
     "promised-sqlite3": "^2.1.0",
     "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
