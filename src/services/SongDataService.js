@@ -15,7 +15,7 @@ async function closeDbContext(context) {
     return await context.close();
 }
 
-async function getSongFromDatabase(context, title) {
+async function getSongFromDatabase(context, title) { 
     const row =  await context.get(`SELECT name, link, title, lyrics, access_count FROM Song WHERE name=(?)`, [title]);
     if (row) await incrementAccessCount(context, row)
     return row;
