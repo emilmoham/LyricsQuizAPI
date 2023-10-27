@@ -28,7 +28,9 @@ function extractLyrics(fullHTML) {
   if (!lyrics || fullHTML.includes('Lyrics for this song have yet to be')) {
     console.log('Failed to capture lyrics or none present');
 
-    if (fullHTML.includes('Burrr!')) console.log('could not find url');
+    if (fullHTML.includes('Burrr!')) {
+      console.log('could not find url');
+    }
 
     return null;
   }
