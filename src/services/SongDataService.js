@@ -22,7 +22,7 @@ async function getSongFromDatabase(context, title) {
 }
 
 async function putSongInDatabase(context, name, title, link, lyrics) {
-    const createSongResult = await context.exec(`INSERT INTO SONG (name, title, link, lyrics) VALUES (?, ?, ?, ?)`, [name, title, link, lyrics]);
+    return await context.run(`INSERT INTO Song (name, title, link, lyrics) VALUES (?, ?, ?, ?)`, [name, title, link, lyrics]);
 }
 
 async function incrementAccessCount(context, row) {

@@ -10,8 +10,6 @@ const {
 } = require('../services/SongScrapeService');
 
 router.get('/:title', async (req, res) => {
-
-
     const title = req.params.title;
     
     // First try to load the song from the DB
@@ -26,11 +24,17 @@ router.get('/:title', async (req, res) => {
         await closeDbContext(context);
         return;
     }
-    await closeDbContext(context);
 
     // We didnt get the song from the DB so try to scrape the data
-    let gameData = await getSongFromWebpage(title);
+    const gameData = await getSongFromWebpage(title);
     res.json(gameData);
+
+    // Make sure we got a good response
+    if (gameData.title && gameData.link && gameData.lyrics.length > 0) {
+        // Add the song to the database
+        await putSongInDatabase(context, title, gameData.title, gameData.link, gameData.lyrics);
+        await closeDbContext(context);
+    }
 });
 
 module.exports = router;

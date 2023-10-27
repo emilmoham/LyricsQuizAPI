@@ -46,21 +46,21 @@ async function getSongFromWebpage(title) {
     gameData.title = 'Error Dowloading Lyrics Data';
     gameData.lyrics = '';
 
-    
-    const data = await requestPromise({
-        url: scrapelink,
-        proxy: process.env.PROXY_URL,
-        rejectUnauthorized: false,
-    });
-    
     try {
+        const data = await requestPromise({
+            url: scrapelink,
+            proxy: process.env.PROXY_URL,
+            rejectUnauthorized: false,
+            timeout: 4000
+        });
+
         gameData.title = extractTitle(data);
         gameData.lyrics = extractLyrics(data);
         
     } catch (e) {
-        console.error(e);
+        console.error(`${scrapelink}-- ${e.message}`)
     }
-    
+
     return gameData;
 }
 
