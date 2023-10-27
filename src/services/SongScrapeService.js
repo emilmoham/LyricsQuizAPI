@@ -1,4 +1,5 @@
 const axios = require('axios');
+const requestPromise = require('request-promise');
 const cheerio = require('cheerio');
 require('dotenv').config();
 
@@ -35,35 +36,31 @@ function extractLyrics(fullHTML) {
 }
 
 async function getSongFromWebpage(title) {
-    let scrapelink;
-
-    let proxyKey = process.env.PROXY_API_KEY;
-    if (proxyKey) {
-        scrapelink = `https://proxy.scrapeops.io/v1/?api_key=${proxyKey}&url=https://genius.com/${resource}`;
-    } else {
-        scrapelink = `https://genius.com/${resource}`;
-    }
+    let scrapelink = `https://genius.com/${title}`;
 
     if (process.env.DEBUG)
         console.log(scrapelink);
 
-    gameData.link = `https://genius.com/${resource}`;
+    const gameData = {};
+    gameData.link = `https://genius.com/${title}`;
     gameData.title = 'Error Dowloading Lyrics Data';
     gameData.lyrics = '';
 
-    await axios.get(scrapelink).then((result) => {
-        try {
-            const fullHTML = result.data;
-            gameData.title = extractTitle(fullHTML);
-            gameData.lyrics = extractLyrics(fullHTML);
-            
-        } catch (e) {
-            console.log(e);
-        }
-    }, (reason) => {
-        console.error(reason.message);
+    
+    const data = await requestPromise({
+        url: scrapelink,
+        proxy: process.env.PROXY_URL,
+        rejectUnauthorized: false,
     });
-
+    
+    try {
+        gameData.title = extractTitle(data);
+        gameData.lyrics = extractLyrics(data);
+        
+    } catch (e) {
+        console.error(e);
+    }
+    
     return gameData;
 }
 
