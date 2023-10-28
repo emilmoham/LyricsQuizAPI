@@ -32,7 +32,8 @@ async function getSongFromDatabase(context, title) {
 }
 
 async function putSongInDatabase(context, name, title, link, lyrics) {
-  return context.run(
+  if (await getSongFromDatabase(context, name)) return;
+  await context.run(
     `INSERT INTO Song (name, title, link, lyrics) VALUES (?, ?, ?, ?)`,
     [name, title, link, lyrics]
   );
