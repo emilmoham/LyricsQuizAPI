@@ -1,5 +1,9 @@
-const requestPromise = require('request-promise');
+/* eslint-disable no-console */
+
+// const requestPromise = require('request-promise');
+const axios = require('axios');
 const cheerio = require('cheerio');
+const https = require('https');
 require('dotenv').config();
 
 function extractTitle(fullHTML) {
@@ -37,6 +41,40 @@ function extractLyrics(fullHTML) {
   return lyrics;
 }
 
+function getProxySettings() {
+  return {
+    host: process.env.PROXY_HOST,
+    port: process.env.PROXY_PORT,
+    auth: {
+      username: process.env.PROXY_USER,
+      password: process.env.PROXY_PASS
+    }
+  };
+}
+
+function getHttpsAgent() {
+  // Required to handle bright data proxy certificate :|
+  return new https.Agent({
+    rejectUnauthorized: false
+  });
+}
+
+function getAxiosOptions() {
+  const axiosOptions = {
+    timeout: 8000
+  };
+
+  if (process.env.ENABLE_PROXY === '1') {
+    axiosOptions.proxy = getProxySettings();
+  }
+
+  if (process.env.IGNORE_CERT === '1') {
+    axiosOptions.httpsAgent = getHttpsAgent();
+  }
+
+  return axiosOptions;
+}
+
 async function getSongFromWebpage(title) {
   const scrapelink = `https://genius.com/${title}`;
 
@@ -48,15 +86,11 @@ async function getSongFromWebpage(title) {
   gameData.lyrics = '';
 
   try {
-    const data = await requestPromise({
-      url: scrapelink,
-      proxy: process.env.PROXY_URL,
-      rejectUnauthorized: false,
-      timeout: 4000
-    });
+    const response = await axios.get(scrapelink, getAxiosOptions());
 
-    gameData.title = extractTitle(data);
-    gameData.lyrics = extractLyrics(data);
+    const fullHTML = response.data;
+    gameData.title = extractTitle(fullHTML);
+    gameData.lyrics = extractLyrics(fullHTML);
   } catch (e) {
     console.error(`${scrapelink}-- ${e.message}`);
   }
