@@ -32,8 +32,10 @@ app.use(
 
 // Import routes
 const songRoute = require('./routes/GameData');
+const geniusRoute = require('./routes/Geinus');
 
 app.use('/GameData', songRoute);
+app.use('/Genius', geniusRoute);
 
 app.get('/', async (req, res) => {
   res.json('v1');
