@@ -20,7 +20,7 @@ function extractLyrics(fullHTML) {
      scrapes the second style (that does not contain a lyrics div) */
 
   if (!lyrics) {
-    $('[class^=Lyrics__Container]').each((i, el) => {
+    $('[class^=Lyrics-]').each((i, el) => {
       const html = $(el).html();
       const lined = html.replace(/<br\s*[/]?>/gi, '\n');
       const stripped = lined.replace(/<[^>]+>/gi, '');
