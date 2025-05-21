@@ -21,6 +21,13 @@ function extractLyrics(fullHTML) {
 
   if (!lyrics) {
     $('[class^=Lyrics__Container]').each((i, el) => {
+      // prune any children which have information we dont need
+      if (
+        el.children.length > 0 &&
+        el.children[0]?.attribs?.class.includes('LyricsHeader')
+      ) {
+        el.children.splice(0, 1);
+      }
       const html = $(el).html();
       const lined = html.replace(/<br\s*[/]?>/gi, '\n');
       const stripped = lined.replace(/<[^>]+>/gi, '');
