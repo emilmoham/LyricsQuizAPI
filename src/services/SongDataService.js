@@ -1,20 +1,8 @@
-const sqlite3 = require('sqlite3');
-const { open } = require('sqlite');
+const { getSongDb } = require('../database/songDb');
 require('dotenv').config();
 
-async function getDbContext() {
-  const db = await open({
-    filename: process.env.SONG_DB,
-    driver: sqlite3.Database
-  });
-  return db;
-}
-
-async function closeDbContext(context) {
-  return context.close();
-}
-
-async function incrementAccessCount(context, row) {
+async function incrementAccessCount(row) {
+  const context = getSongDb();
   if (row.access_count && row.name)
     await context.run(`UPDATE Song SET access_count=(?) WHERE name=(?)`, [
       row.access_count + 1,
@@ -22,26 +10,26 @@ async function incrementAccessCount(context, row) {
     ]);
 }
 
-async function getSongFromDatabase(context, title) {
+async function getSongFromDatabase(lrclibId) {
+  const context = getSongDb();
   const row = await context.get(
-    `SELECT name, link, title, lyrics, access_count FROM Song WHERE name=(?)`,
-    [title]
+    `SELECT lrclib_id, title, artist, lyrics, access_count FROM Song WHERE lrclib_id=(?)`,
+    [lrclibId]
   );
-  if (row) await incrementAccessCount(context, row);
+  if (row) await incrementAccessCount(row);
   return row;
 }
 
-async function putSongInDatabase(context, name, title, link, lyrics) {
-  if (await getSongFromDatabase(context, name)) return;
+async function putSongInDatabase(lrclibId, title, artist, lyrics) {
+  const context = getSongDb();
+  if (await getSongFromDatabase(lrclibId)) return;
   await context.run(
-    `INSERT INTO Song (name, title, link, lyrics) VALUES (?, ?, ?, ?)`,
-    [name, title, link, lyrics]
+    `INSERT INTO Song (lrclib_id, title, artist, lyrics, access_count) VALUES (?, ?, ?, ?, ?)`,
+    [lrclibId, title, artist, lyrics, 1]
   );
 }
 
 module.exports = {
-  getDbContext,
-  closeDbContext,
   getSongFromDatabase,
   putSongInDatabase,
   incrementAccessCount

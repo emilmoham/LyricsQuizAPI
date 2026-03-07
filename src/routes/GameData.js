@@ -1,44 +1,75 @@
 const router = require('express').Router();
 const {
-  getDbContext,
-  closeDbContext,
   getSongFromDatabase,
   putSongInDatabase
 } = require('../services/SongDataService');
-const { getSongFromWebpage } = require('../services/SongScrapeService');
+const ApiResponse = require('../models/ApiResponse');
+const { getSongFromApi } = require('../services/LrclibService');
 
-router.get('/:title', async (req, res) => {
-  const { title } = req.params;
+router.get('/:id', async (req, res) => {
+  const lrclibId = parseInt(req.params.id, 10);
 
-  // First try to load the song from the DB
-  const context = await getDbContext();
-  const row = await getSongFromDatabase(context, title);
-  if (row) {
-    res.json({
-      link: row.link,
-      title: row.title,
-      lyrics: row.lyrics
-    });
-    await closeDbContext(context);
+  if (Number.isNaN(lrclibId)) {
+    res.status(400).json(ApiResponse.Fail(-1, 'Unable to parse song id'));
     return;
   }
 
-  // We didnt get the song from the DB so try to scrape the data
-  const gameData = await getSongFromWebpage(title);
-  res.json(gameData);
+  // First try to load the song from the DB
+  const row = await getSongFromDatabase(lrclibId);
+  if (row) {
+    res.status(200).json(
+      ApiResponse.Ok({
+        lrclibId: row.lrclib_id,
+        title: row.title,
+        artist: row.artist,
+        lyrics: row.lyrics,
+        accessCount: row.accessCount
+      })
+    );
+    return;
+  }
+
+  // We didnt get the song from the local DB so query the API
+  let gameData;
+  try {
+    gameData = await getSongFromApi(lrclibId);
+  } catch (error) {
+    res.status(500).json(ApiResponse.Fail(-3, 'Failed to reach Lrclib API'));
+    return;
+  }
+
+  if (!gameData) {
+    res
+      .status(404)
+      .json(ApiResponse.Fail(-2, 'Song not found in Lrclib Database'));
+    return;
+  }
 
   // Make sure we got a good response
-  if (gameData.title && gameData.link && gameData.lyrics.length > 0) {
+  if (
+    gameData.id &&
+    gameData.name &&
+    gameData.artistName &&
+    gameData.plainLyrics.length > 0
+  ) {
     // Add the song to the database
     await putSongInDatabase(
-      context,
-      title,
-      gameData.title,
-      gameData.link,
-      gameData.lyrics
+      gameData.id,
+      gameData.name,
+      gameData.artistName,
+      gameData.plainLyrics
     );
-    await closeDbContext(context);
   }
+
+  res.status(200).json(
+    ApiResponse.Ok({
+      lrclibId: gameData.id,
+      title: gameData.name,
+      artist: gameData.artistName,
+      lyrics: gameData.plainLyrics,
+      accessCount: 1
+    })
+  );
 });
 
 module.exports = router;

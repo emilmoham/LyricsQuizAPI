@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
+const { initializeSongDb } = require('./database/songDb');
 
 const port = process.env.PORT ? process.env.PORT : 8011;
 
@@ -32,16 +33,23 @@ app.use(
 
 // Import routes
 const songRoute = require('./routes/GameData');
-const geniusRoute = require('./routes/Geinus');
+const lrclibRoute = require('./routes/Lrclib');
 
 app.use('/GameData', songRoute);
-app.use('/Genius', geniusRoute);
+app.use('/Lrclib', lrclibRoute);
 
 app.get('/', async (req, res) => {
-  res.json('v1');
+  res.json('v2.0.0');
 });
 
-app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`CORS-enabled web server listening on port ${port}`);
-});
+initializeSongDb()
+  .then(() => {
+    app.listen(port, () => {
+      // eslint-disable-next-line no-console
+      console.log(`CORS-enabled web server listening on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to initialize database:', err);
+    process.exit(1);
+  });
