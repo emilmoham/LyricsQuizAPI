@@ -4,7 +4,7 @@ const {
   putSongInDatabase
 } = require('../services/SongDataService');
 const ApiResponse = require('../models/ApiResponse');
-const { getSongFromApi } = require('../services/LrclibService');
+const { getSongById } = require('../services/LrclibService');
 
 router.get('/:id', async (req, res) => {
   const lrclibId = parseInt(req.params.id, 10);
@@ -32,7 +32,7 @@ router.get('/:id', async (req, res) => {
   // We didnt get the song from the local DB so query the API
   let gameData;
   try {
-    gameData = await getSongFromApi(lrclibId);
+    gameData = await getSongById(lrclibId);
   } catch (error) {
     res.status(500).json(ApiResponse.Fail(-3, 'Failed to reach Lrclib API'));
     return;
