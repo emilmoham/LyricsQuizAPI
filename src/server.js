@@ -42,14 +42,26 @@ app.get('/', async (req, res) => {
   res.json('v2.0.0');
 });
 
-initializeSongDb()
-  .then(() => {
-    app.listen(port, () => {
-      // eslint-disable-next-line no-console
-      console.log(`CORS-enabled web server listening on port ${port}`);
-    });
-  })
-  .catch((err) => {
-    console.error('Failed to initialize database:', err);
-    process.exit(1);
+let server = null;
+
+function shutdown() {
+  server.close(() => process.exit(0));
+}
+
+async function start() {
+  await initializeSongDb();
+
+  server = app.listen(port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`CORS-enabled web server listening on port ${port}`);
   });
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
+}
+
+start().catch((err) => {
+  // eslint-disable-next-line no-console
+  console.error('Failed to start webserver:', err);
+  process.exit(1);
+});
