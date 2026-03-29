@@ -1,5 +1,4 @@
 const { getSongDb } = require('../database/songDb');
-require('dotenv').config();
 
 async function incrementAccessCount(row) {
   const context = getSongDb();
