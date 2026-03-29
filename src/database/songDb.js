@@ -3,6 +3,8 @@ const { open } = require('sqlite');
 const schema = require('./schema');
 require('dotenv').config();
 
+const dbName = process.env.SONG_DB ? process.env.SONG_DB : 'Songs.db';
+
 let db = null;
 
 function getSongDb() {
@@ -14,7 +16,7 @@ function getSongDb() {
 }
 
 async function initializeSongDb() {
-  db = await open({ filename: process.env.SONG_DB, driver: sqlite3.Database });
+  db = await open({ filename: dbName, driver: sqlite3.Database });
 
   for (let i = 0; i < schema.length; i += 1) {
     // eslint-disable-next-line no-await-in-loop
